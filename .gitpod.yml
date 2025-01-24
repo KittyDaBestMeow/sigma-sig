@@ -4,30 +4,37 @@ image:
 tasks:
   - init: |
       echo "Initializing workspace in Gitpod..."
+      # Set the workspace path explicitly
+      WORKSPACE_DIR=/workspace/SIGMA-SIG
+
       # Create a 200GB virtual hard disk for Windows installation
       echo "Creating a 200GB virtual hard disk..."
-      qemu-img create -f qcow2 win10.img 200G
+      qemu-img create -f qcow2 $WORKSPACE_DIR/win10.img 200G
       echo "Virtual hard disk creation completed."
 
       # Download Windows 10 ISO (replace this link with your own if needed)
       echo "Downloading Windows 10 ISO..."
-      wget -O windows10.iso "https://dl.malwarewatch.org/windows/Windows-10-1607.iso"
+      wget -O $WORKSPACE_DIR/windows10.iso "https://dl.malwarewatch.org/windows/Windows-10-1607.iso"
       echo "Windows 10 ISO download completed."
 
   - command: |
       echo "Starting QEMU and noVNC in Gitpod..."
+      WORKSPACE_DIR=/workspace/SIGMA-SIG
+
       # Start noVNC server on a Gitpod-compatible port
       websockify --web=/usr/share/novnc/ 6080 127.0.0.1:5900 &
       wait
       echo "noVNC started successfully on port 6080."
 
-      # Start QEMU and boot Windows 10 ISO
+      # Start QEMU with networking configured for internet access
       qemu-system-x86_64 \
         -m 4096 \
         -smp 2 \
-        -vnc :0 \
-        -cdrom windows10.iso \
+        -vnc 127.0.0.1:5900 \
+        -cdrom $WORKSPACE_DIR/windows10.iso \
         -boot d \
-        -hda win10.img \
-        -enable-kvm
+        -hda $WORKSPACE_DIR/win10.img \
+        -enable-kvm \
+        -netdev user,id=net0 \
+        -device e1000,netdev=net0
       echo "QEMU started successfully. Access noVNC through Gitpod's preview feature on port 6080."
