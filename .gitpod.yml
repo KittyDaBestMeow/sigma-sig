@@ -3,46 +3,31 @@ image:
 
 tasks:
   - init: |
-      echo "Initializing workspace..."
+      echo "Initializing workspace in Gitpod..."
       # Create a 200GB virtual hard disk for Windows installation
       echo "Creating a 200GB virtual hard disk..."
       qemu-img create -f qcow2 win10.img 200G
-      if [ $? -ne 0 ]; then
-          echo "Failed to create the virtual hard disk. Exiting..."
-          exit 1
-      fi
-      echo "Virtual hard disk created successfully."
+      echo "Virtual hard disk creation completed."
 
       # Download Windows 10 ISO (replace this link with your own if needed)
       echo "Downloading Windows 10 ISO..."
       wget -O windows10.iso "https://dl.malwarewatch.org/windows/Windows-10-1607.iso"
-      if [ $? -ne 0 ]; then
-          echo "Failed to download Windows 10 ISO. Exiting..."
-          exit 1
-      fi
-      echo "Windows 10 ISO downloaded successfully."
+      echo "Windows 10 ISO download completed."
 
   - command: |
-      echo "Starting QEMU and noVNC..."
-      # Start noVNC server
-      websockify --web=/usr/share/novnc/ 6969 127.0.0.1:5900 &
-      if [ $? -ne 0 ]; then
-          echo "Failed to start websockify. Exiting..."
-          exit 1
-      fi
-      echo "noVNC started successfully on port 6969."
+      echo "Starting QEMU and noVNC in Gitpod..."
+      # Start noVNC server on a Gitpod-compatible port
+      websockify --web=/usr/share/novnc/ 6080 127.0.0.1:5900 &
+      wait
+      echo "noVNC started successfully on port 6080."
 
       # Start QEMU and boot Windows 10 ISO
       qemu-system-x86_64 \
         -m 4096 \
         -smp 2 \
-        -vnc 127.0.0.1:5900 \
+        -vnc :0 \
         -cdrom windows10.iso \
         -boot d \
         -hda win10.img \
         -enable-kvm
-      if [ $? -ne 0 ]; then
-          echo "Failed to start QEMU. Exiting..."
-          exit 1
-      fi
-      echo "QEMU started successfully. Connect via noVNC on port 6969."
+      echo "QEMU started successfully. Access noVNC through Gitpod's preview feature on port 6080."
