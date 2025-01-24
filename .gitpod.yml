@@ -11,7 +11,7 @@ tasks:
   - command: |
       echo "Starting QEMU and noVNC..."
       # Start noVNC server
-      websockify --web=/usr/share/novnc/ 6969 :5900 &
+      websockify --web=/usr/share/novnc 6969 localhost:5900
       # Start QEMU and boot Windows 10 ISO
       qemu-system-x86_64 \
         -m 4096 \
