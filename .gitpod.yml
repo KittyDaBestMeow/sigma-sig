@@ -1,0 +1,14 @@
+image:
+  file: .gitpod.Dockerfile
+
+tasks:
+  - init: |
+      sudo service docker start
+      echo "Docker service started"
+  - command: |
+      docker --version
+      echo "Docker is ready to use"
+
+ports:
+  - port: 2375
+    onOpen: ignore
