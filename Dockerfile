@@ -4,7 +4,7 @@ FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install required dependencies including git
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     qemu-system-x86 \
     novnc \
     websockify \
@@ -14,14 +14,16 @@ RUN apt-get update && apt-get install -y \
     xfce4 \
     tzdata \
     git \
-    && apt-get clean
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Verify git installation by checking the version
 RUN git --version
 
-# Install websockify for noVNC
-RUN pip3 install --upgrade websockify
+# Upgrade pip and install websockify for noVNC
+RUN pip3 install --no-cache-dir --upgrade pip websockify
 
 # Create a working directory
-RUN mkdir -p /workspace/vm
 WORKDIR /workspace/vm
+
+# Expose ports for noVNC and VNC
+EXPOSE 5900 6969
