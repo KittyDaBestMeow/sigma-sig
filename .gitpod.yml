@@ -1,14 +1,23 @@
 image:
-  file: .gitpod.Dockerfile
+  file: Dockerfile
 
 tasks:
   - init: |
-      sudo service docker start
-      echo "Docker service started"
+      echo "Initializing workspace..."
+      # Create a 20GB virtual hard disk for Windows installation
+      qemu-img create -f qcow2 win10.img 50G
+      # Download Windows 10 ISO (replace this link with your own if needed)
+      wget -O windows10.iso "https://dl.malwarewatch.org/windows/Windows-10-1607.iso"
   - command: |
-      docker --version
-      echo "Docker is ready to use"
-
-ports:
-  - port: 2375
-    onOpen: ignore
+      echo "Starting QEMU and noVNC..."
+      # Start noVNC server
+      websockify --web=/usr/share/novnc/ 6969 :5900 &
+      # Start QEMU and boot Windows 10 ISO
+      qemu-system-x86_64 \
+        -m 4096 \
+        -smp 2 \
+        -vnc :0 \
+        -cdrom windows10.iso \
+        -boot d \
+        -hda win10.img \
+        -enable-kvm
